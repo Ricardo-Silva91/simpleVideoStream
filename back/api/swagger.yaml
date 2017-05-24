@@ -1,0 +1,107 @@
+---
+swagger: "2.0"
+info:
+  description: "API for videoStream REST Server"
+  version: "0.0.0"
+  title: "videoStream REST API"
+host: "localhost:1337"
+basePath: "/"
+schemes:
+- "http"
+produces:
+- "application/json"
+paths:
+  /:
+    get:
+      tags:
+      - "public"
+      summary: "nothing"
+      description: "just to see if server is awake.\n"
+      operationId: "rootGET"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "good evening... string"
+          schema:
+            type: "string"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/inline_response_default"
+      x-swagger-router-controller: "Public"
+  /getVideoList:
+    get:
+      tags:
+      - "public"
+      summary: "list available videos"
+      description: "array of strings with video titles"
+      operationId: "getVideoListGET"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "video list"
+          schema:
+            type: "array"
+            items:
+              type: "string"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/inline_response_default"
+      x-swagger-router-controller: "Public"
+  /getWatchVideo:
+    get:
+      tags:
+      - "public"
+      summary: "watch a video"
+      description: "get a video stream"
+      operationId: "getWatchVideoGET"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "videoTitle"
+        in: "query"
+        description: "the video name"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "video list"
+          schema:
+            type: "object"
+            properties: {}
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/inline_response_default"
+      x-swagger-router-controller: "Public"
+definitions:
+  videoList:
+    type: "array"
+    items:
+      type: "string"
+  videoStream:
+    type: "object"
+  Error:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      fields:
+        type: "string"
+  inline_response_default:
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      fields:
+        type: "string"
