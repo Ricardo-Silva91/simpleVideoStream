@@ -67,12 +67,12 @@ class App extends Component {
 
                 {/*
 
-                <Table className="table" data={data}
-                       itemsPerPage={4}
-                       filterable={['name']}
-                />
+                 <Table className="table" data={data}
+                 itemsPerPage={4}
+                 filterable={['name']}
+                 />
 
-                */}
+                 */}
 
                 <ReactTable
                     data={data}
@@ -80,14 +80,19 @@ class App extends Component {
                     defaultPageSize="5"
                     filterable={true}
                     defaultFilterMethod={(filter, row, column) => {
-                        const id = filter.pivotId || filter.id
-                        return row[id] !== undefined ? String(row[id]).toLowerCase().indexOf(filter.value.toLowerCase()) !==-1 : true
+                        const id = filter.pivotId || filter.id;
+                        return row[id] !== undefined ? String(row[id]).toLowerCase().indexOf(filter.value.toLowerCase()) !== -1 : true
                     }}
                     getTdProps={(state, rowInfo, column, instance) => {
                         return {
                             onClick: e => {
-                                console.log('It was in this row:', rowInfo.row.name);
-                                this.clickVideo(rowInfo.row.name);
+                                if (rowInfo !== undefined) {
+                                    console.log('video requested:', rowInfo.row.name);
+                                    this.clickVideo(rowInfo.row.name);
+                                }
+                                else {
+                                    console.log('no video in that row!');
+                                }
                             }
                         }
                     }}
