@@ -15,3 +15,15 @@ module.exports.getWatchVideoGET = function getWatchVideoGET (req, res, next) {
 module.exports.rootGET = function rootGET (req, res, next) {
   Public.rootGET(req.swagger.params, res, next);
 };
+
+module.exports.setVideoThingPOST = function setVideoThingPOST (req, res, next) {
+    Public.setVideoThingPOST(req.swagger.params, res, next);
+};
+
+module.exports.refreshVideoListPOST = function refreshVideoListPOST (req, res, next) {
+    Public.refreshVideoListPOST(req.swagger.params, res, next);
+};
+
+module.exports.getVideoSubsGET = function getVideoSubsGET (req, res, next) {
+    Public.getVideoSubsGET(req.swagger.params, res, next);
+};

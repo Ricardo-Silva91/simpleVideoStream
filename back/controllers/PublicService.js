@@ -15,17 +15,89 @@ exports.getVideoListGET = function (args, res, next) {
     var examples = {};
     examples['application/json'] = ["aeiou"];
     if (Object.keys(examples).length > 0) {
+        /*
+         fs.readdir(variables.videoDirectory_path, function (err, items) {
+         examples = items;
 
-        fs.readdir(variables.videoDirectory_path, function (err, items) {
-            examples = items;
+         res.setHeader('Content-Type', 'application/json');
+         res.end(JSON.stringify(examples, null, 2));
+         });
+         */
+        examples = variables.videoList;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(examples, null, 2));
 
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(examples, null, 2));
-        });
     } else {
         res.end();
     }
-}
+};
+exports.setVideoThingPOST = function (args, res, next) {
+    /**
+     * list available videos
+     * array of strings with video titles
+     *
+     * returns List
+     **/
+    var examples = {};
+    examples['application/json'] = ["aeiou"];
+    if (Object.keys(examples).length > 0) {
+
+        const thing = args.body.value.thing;
+        const new_val = args.body.value.string;
+        const videoId = args.body.value.id;
+
+        const videoPos = variables.findSomethingBySomething(variables.videoList, 'id', videoId);
+
+        if (videoPos != -1) {
+            variables.videoList[videoPos][thing] = new_val;
+            variables.refreshVideoList();
+            examples = {
+                result: 'success'
+            };
+        }
+        else {
+            examples = {
+                result: 'fail',
+                message: 'bad id'
+            }
+        }
+
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(examples, null, 2));
+
+    } else {
+        res.end();
+    }
+};
+
+exports.refreshVideoListPOST = function (args, res, next) {
+    /**
+     * list available videos
+     * array of strings with video titles
+     *
+     * returns List
+     **/
+    var examples = {};
+    examples['application/json'] = {
+        result: 'success'
+    };
+    if (Object.keys(examples).length > 0) {
+        /*
+         fs.readdir(variables.videoDirectory_path, function (err, items) {
+         examples = items;
+
+         res.setHeader('Content-Type', 'application/json');
+         res.end(JSON.stringify(examples, null, 2));
+         });
+         */
+        variables.refreshVideoList();
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(examples, null, 2));
+
+    } else {
+        res.end();
+    }
+};
 
 exports.getWatchVideoGET = function (args, res, next, req) {
     /**
@@ -35,33 +107,31 @@ exports.getWatchVideoGET = function (args, res, next, req) {
      * videoTitle String the video name
      * returns Object
      **/
-    var examples = {};
+    let examples = {};
     examples['application/json'] = "{}";
     if (Object.keys(examples).length > 0) {
 
         //console.log(args.videoTitle.value);
 
-        const videoTitle = args.videoTitle.value;
+        const videoId = args.videoId.value;
 
-        fs.readdir(variables.videoDirectory_path, function (err, items) {
+        const videoPos = variables.findSomethingBySomething(variables.videoList, 'id', videoId);
 
-            if (items.indexOf(videoTitle) != -1) {
+        if (videoPos !== -1) {
+            const path = variables.videoList[videoPos].pathToVideo;
 
-                var path = variables.videoDirectory_path + '/' + videoTitle;
-
-                fs.stat(path, (err, stats) => {
-                    if (err) {
-                        console.log(err);
-                        return res.status(404).end('<h1>Movie Not found</h1>');
-                    }
-                    // Variáveis necessárias para montar o chunk header corretamente
+            fs.stat(path, (err, stats) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(404).end('<h1>Movie Not found</h1>');
+                }
+                else {
 
                     const {range} = req.headers;
                     const {size} = stats;
                     const start = Number((range || '').replace(/bytes=/, '').split('-')[0]);
                     const end = size - 1;
                     const chunkSize = (end - start) + 1;
-                    // Definindo headers de chunk
 
                     res.set({
                         'Content-Range': `bytes ${start}-${end}/${size}`,
@@ -70,32 +140,28 @@ exports.getWatchVideoGET = function (args, res, next, req) {
                         'Content-Type': 'video/mp4'
                     });
 
-                    // É importante usar status 206 - Partial Content para o streaming funcionar
                     res.status(206);
-                    // Utilizando ReadStream do Node.js
-                    // Ele vai ler um arquivo e enviá-lo em partes via stream.pipe()
+
                     const stream = fs.createReadStream(path, {start, end});
                     stream.on('open', () => stream.pipe(res));
                     stream.on('error', (streamErr) => res.end(streamErr));
-                });
+                }
+            });
 
-            }
-            else {
-                examples = {
-                    result: "fail",
-                    code: 0,
-                    message: "video not found",
-                    fields: "videoTitle"
-                };
-                res.setHeader('Content-Type', 'application/json');
-                res.end(JSON.stringify(examples, null, 2));
-            }
-        });
-
-    } else {
-        res.end();
+        }
+        else {
+            examples = {
+                result: "fail",
+                code: 0,
+                message: "video not found",
+                fields: "videoId"
+            };
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(examples, null, 2));
+        }
     }
-}
+
+};
 
 exports.rootGET = function (args, res, next) {
     /**
@@ -112,5 +178,48 @@ exports.rootGET = function (args, res, next) {
     } else {
         res.end();
     }
-}
+};
+
+exports.getVideoSubsGET = function (args, res, next) {
+    /**
+     * list available videos
+     * array of strings with video titles
+     *
+     * returns List
+     **/
+    var examples = {};
+    examples['application/json'] = ["aeiou"];
+    if (Object.keys(examples).length > 0) {
+
+        const videoId = args.videoId.value;
+
+        const videoPos = variables.findSomethingBySomething(variables.videoList, 'id', videoId);
+
+        if (videoPos != -1) {
+
+            console.log('reading ' + variables.videoList[videoPos].pathToSub[0]);
+
+            fs.readFile(variables.videoList[videoPos].pathToSub[0], 'utf8', function(err, data) {
+                if (err) throw err;
+                examples = data;
+                res.setHeader('Content-Type', 'text/plain');
+                res.end(examples);
+            });
+        }
+        else {
+            examples = {
+                result: "fail",
+                code: 0,
+                message: "video not found",
+                fields: "videoId"
+            };
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(examples, null, 2));
+        }
+
+
+    } else {
+        res.end();
+    }
+};
 

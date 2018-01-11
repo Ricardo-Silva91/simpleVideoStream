@@ -4,7 +4,8 @@ info:
   description: "API for videoStream REST Server"
   version: "0.0.0"
   title: "videoStream REST API"
-host: "localhost:1337"
+#host: "localhost:1337"
+host: "192.168.1.78:1337"
 basePath: "/"
 schemes:
 - "http"
@@ -53,6 +54,33 @@ paths:
           schema:
             $ref: "#/definitions/inline_response_default"
       x-swagger-router-controller: "Public"
+  /getVideoSubs:
+    get:
+      tags:
+      - "public"
+      summary: "get subtitles for video"
+      description: "array of strings with video titles"
+      operationId: "getVideoSubsGET"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "videoId"
+        in: "query"
+        description: "the video id"
+        required: true
+        type: integer
+      responses:
+        200:
+          description: "video subs"
+          schema:
+            type: "array"
+            items:
+              type: "string"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/inline_response_default"
+      x-swagger-router-controller: "Public"
   /getWatchVideo:
     get:
       tags:
@@ -63,11 +91,11 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "videoTitle"
+      - name: "videoId"
         in: "query"
-        description: "the video name"
+        description: "the video id"
         required: true
-        type: "string"
+        type: integer
       responses:
         200:
           description: "video list"
@@ -78,6 +106,52 @@ paths:
           description: "Unexpected error"
           schema:
             $ref: "#/definitions/inline_response_default"
+      x-swagger-router-controller: "Public"
+  /setVideoThing:
+    post:
+      tags:
+      - "public"
+      summary: "Set Pic For Existing Video"
+      description: ""
+      operationId: "setVideoThingPOST"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Thing definition object"
+        required: true
+        schema:
+          $ref: "#/definitions/single_String"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+              $ref: "#/definitions/OK_res"
+        405:
+          description: "Invalid input"
+      x-swagger-router-controller: "Public"
+  /refreshVideoList:
+    post:
+      tags:
+      - "public"
+      summary: "Refresh Video List"
+      description: ""
+      operationId: "refreshVideoListPOST"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+              $ref: "#/definitions/OK_res"
+        405:
+          description: "Invalid input"
       x-swagger-router-controller: "Public"
 definitions:
   videoList:
@@ -105,3 +179,18 @@ definitions:
         type: "string"
       fields:
         type: "string"
+  single_String:
+    type: object
+    properties:
+      id:
+        type: integer
+      string:
+        type: string
+      thing:
+        type: string
+  OK_res:
+    type: object
+    properties:
+      result:
+        type: string
+        default: 'success'

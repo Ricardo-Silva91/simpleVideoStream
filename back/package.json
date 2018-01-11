@@ -18,6 +18,10 @@
     "fs": "0.0.1-security",
     "http": "0.0.0",
     "js-yaml": "^3.3.0",
+    "jsonfile": "^3.0.1",
+    "node-cron": "^1.2.0",
+    "path": "^0.12.7",
+    "recursive-readdir": "^2.2.1",
     "swagger-tools": "0.10.1",
     "util": "^0.10.3"
   }
